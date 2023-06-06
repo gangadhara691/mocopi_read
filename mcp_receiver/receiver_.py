@@ -1,17 +1,17 @@
 import socket
 import struct
 from mcp_receiver.runner import Runner
-
+import matplotlib.pyplot as plt
 def is_field(name):
     return name.isalpha()
 
-def _deserialize(data, index, length, is_list=False):
+def _deserialize(data, index, length, is_list = False):
     result = [] if is_list else {}
     end_pos = index + length
-    while end_pos - index > 8 and is_field(data[index + 4:index + 8]):
-        size = struct.unpack("@i", data[index: index + 4])[0]
+    while end_pos - index > 8 and is_field(data[index+4:index+8]):
+        size = struct.unpack("@i", data[index: index+4])[0]
         index += 4
-        field = data[index:index + 4]
+        field = data[index:index+4]
         index += 4
         value, index2 = _deserialize(data, index, size, field in [b"btrs", b"bons"])
         index = index2
@@ -20,7 +20,7 @@ def _deserialize(data, index, length, is_list=False):
         else:
             result[field.decode()] = value
     if len(result) == 0:
-        body = data[index:index + length]
+        body  = data[index:index+length]
         return body, index + len(body)
     else:
         return result, index
@@ -44,9 +44,9 @@ def _process_packet(message):
             item["tran"] = struct.unpack("@fffffff", item["tran"])
     return data
 
+
 class Receiver(Runner):
-    def __init__(self, addr="10.18.80.194", port=12351):
-        super().__init__()
+    def __init__(self, addr = "10.18.80.194", port = 12351):
         self.addr = addr
         self.port = port
 
@@ -57,11 +57,7 @@ class Receiver(Runner):
             try:
                 message, client_addr = self.socket.recvfrom(2048)
                 data = _process_packet(message)
-                print("receiver data:", data)
+                print("receiver data:",data)
                 self.queue.put(data)
             except KeyError as e:
                 print(e)
-
-# Usage
-receiver = Receiver()
-receiver.start()
