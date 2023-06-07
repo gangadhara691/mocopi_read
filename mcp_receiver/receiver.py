@@ -77,7 +77,7 @@ def _process_packet(message):
     return data
 
 class Receiver:
-    def __init__(self, addr="10.18.80.194", port=12351):
+    def __init__(self, addr="172.31.160.1", port=12351):
         self.addr = addr
         self.port = port
         self.queue = Queue()
